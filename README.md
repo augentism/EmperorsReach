@@ -10,19 +10,33 @@ bridge for:
   app's responses are rejected by Darktide's HTTP client, so the bridge
   relays and fixes them.
 
-## Setup
+## What's in the release zip
+
+| Item | What it is |
+|---|---|
+| `EmperorsTouchBridge\` | The standalone app — no Python or other installs needed. Run **`EmperorsTouchBridge.exe`** inside this folder. The other files in the folder are its runtime; keep them together (move/extract the whole folder, not just the exe). |
+| `bridge.py` | The full source code of that app. Read it if you want to verify what you're running, or run it directly instead of the exe (see below). |
+| `README.md` | This file. |
+
+## Launching
+
+**Standalone (recommended):** extract the zip anywhere and double-click
+`EmperorsTouchBridge\EmperorsTouchBridge.exe`. No console window opens —
+the app's own log pane shows what's happening.
+
+**From source (if you prefer, or if your antivirus distrusts the exe):**
 
 ```
 pip install aiohttp buttplug-py
+python bridge.py
 ```
 
 (`buttplug-py` is only needed for buttplug mode.)
 
-## Usage
+Both launch the identical app — the exe is just `bridge.py` compiled with
+Nuitka so users without Python can run it.
 
-```
-python bridge.py
-```
+## Usage
 
 A small window opens. Pick a mode, fill in its address field, press
 **Start**:
@@ -57,5 +71,6 @@ listens on port 20010 (the mod expects exactly that).
 
 - The bridge listens on 127.0.0.1 only — nothing on your network can
   reach it.
-- Keep the console open; it logs every command, which is the first thing
-  to check when something doesn't buzz.
+- Keep the bridge window open while playing; its log pane records every
+  command the game sends, which is the first thing to check (and
+  screenshot) when something doesn't buzz.

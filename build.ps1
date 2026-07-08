@@ -20,7 +20,9 @@ Set-Location $PSScriptRoot
 $env:NUITKA_CACHE_DIR = "D:\nuitka-cache"
 $outDir = "build-standalone"
 
-# Clean previous build output
+# Clean previous build output (stop any running instance first — it locks
+# its own DLLs)
+try { Stop-Process -Name EmperorsTouchBridge -Force -ErrorAction Stop; Start-Sleep -Seconds 1 } catch {}
 if (Test-Path $outDir) {
     Remove-Item $outDir -Recurse -Force
 }
@@ -30,6 +32,7 @@ python -m nuitka `
     --windows-console-mode=disable `
     --enable-plugin=tk-inter `
     --include-package=buttplug `
+    --include-package=websockets `
     --assume-yes-for-downloads `
     --output-dir=$outDir `
     --output-filename=EmperorsTouchBridge.exe `
@@ -42,7 +45,16 @@ if ($LASTEXITCODE -ne 0) {
 # Nuitka names the folder after the script; give it the app name
 Rename-Item "$outDir\bridge.dist" "EmperorsTouchBridge"
 
-# Smoke test: the exe must start and stay up
+# Self-test: verifies lazily-imported packages (buttplug, websockets.asyncio)
+# made it into the bundle — Nuitka's static analysis misses them without the
+# --include-package flags above
+$p = Start-Process "$outDir\EmperorsTouchBridge\EmperorsTouchBridge.exe" -ArgumentList "--selftest" -PassThru -Wait
+if ($p.ExitCode -ne 0) {
+    throw "Self-test failed (exit $($p.ExitCode)): a dependency is missing from the bundle"
+}
+Write-Host "Self-test passed"
+
+# Smoke test: the UI must start and stay up
 $p = Start-Process "$outDir\EmperorsTouchBridge\EmperorsTouchBridge.exe" -PassThru
 Start-Sleep -Seconds 5
 if ($p.HasExited) {

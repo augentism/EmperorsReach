@@ -572,6 +572,13 @@ class BridgeUI:
 
 
 if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        # Exercised by build.ps1: verifies lazily-imported dependencies
+        # actually made it into the compiled bundle (exit code is the result)
+        import buttplug            # noqa: F401
+        import websockets.asyncio  # noqa: F401
+        sys.exit(0)
+
     root = tk.Tk()
     BridgeUI(root)
     root.mainloop()
